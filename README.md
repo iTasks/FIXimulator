@@ -167,6 +167,20 @@ Once the logon is accepted you can send `NewOrderSingle` (`35=D`) messages and r
 
 To use a different counterparty, change `TargetCompID` / `SenderCompID` in `config/FIXimulator.cfg` (or use one of the alternate config files below) and restart.
 
+### Console FIX client (QuickFIX/J)
+
+The `fixclient/` module is a console initiator built on QuickFIX/J that logs on to FIXimulator and places, replaces, and cancels orders.
+
+```bash
+cd fixclient
+mvn -B package -DskipTests
+java -jar target/fixclient-1.0.0-shaded.jar client.cfg
+```
+
+At the `fix>` prompt, type `demo` to run a scripted sequence (limit buy, limit sell, market buy, replace, cancel), or `help` for commands such as `buy IBM 25 91.25`, `sell MSFT 10 MKT`, `replace <clOrdId> <qty> <px>`, `cancel <clOrdId>`, and `orders`. Orders stay `PENDING_NEW` until you accept them in the FIXimulator UI, or you enable `FIXimulatorAutoAcknowledge` in `config/FIXimulator.cfg`.
+
+Session commands: `logon` and `logout` control the session (`logout` is refused when already logged off), `test [id]` sends a TestRequest (requires a logged-on session; FIXimulator answers with a Heartbeat), `seq` shows the next outgoing and expected incoming sequence numbers, and `reset` resets sequence numbers to 1 (only while logged off). `reset` sends `ResetSeqNumFlag=Y` (141=Y) on the next logon. With `ResetOnLogon=N`, a logon with stale sequence numbers is rejected with "MsgSeqNum too low"; use `reset` and then `logon` to recover. Note that the FIXimulator acceptor keeps its own sequence state in its `data/` directory, so delete that directory when you want to start from a clean state.
+
 ---
 
 ## ⚙️ Configuration Reference
